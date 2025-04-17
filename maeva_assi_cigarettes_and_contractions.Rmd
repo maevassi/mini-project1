@@ -1,0 +1,161 @@
+---
+title: "Cigarettes and Contractions"
+output: html_document
+date: "2025-03-11"
+author: 'Maeva Assi'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+We've all heard an anecdote on someone's (maybe our own!) birth weight before. A baby being very lightweight and tiny or heavy and chunky, either being a source of worry or hope in a parent's story.
+
+Many factors influence the outcome of a pregnancy and the baby's birth weight.
+I'm interested in the relationship between **gestation time and birth weight** and then whether **smoking affects the gestation time and the birth weight**.
+
+The data set contains information about 1,236 male's birth weight, date, and gestational period collected as part of the Child Health and Development Studies in 1961 and 1962. Information about the baby's parents — age, education, height, weight, and whether the mother smoked is also recorded.
+The original dataset has 22 variables, but I will focus on three variables :
+
+- The length of gestation in days;
+
+- The birth weight in ounces;
+
+- Whether the mother smoked or not.
+
+*It's important to note that all babies in this dataset are considered "live births", meaning they survived at least 28 days.*
+
+
+```{r warning=FALSE, include=FALSE}
+library(tidyverse)
+library(ggthemes)
+library(mosaicData) #my data is part of this package
+```
+
+# I. Relationship between gestation time and birth weight
+### Graph 1
+```{r message=FALSE, warning=FALSE}
+ggplot(
+  data = Gestation,
+  mapping = aes(x = gestation, y = wt)) + 
+  geom_point() + 
+  geom_smooth(method = "lm") + 
+  labs(
+    title = "Birth weight vs Gestation length", 
+    subtitle = "Data from 1961 and 1962",
+    x = "Gestation length (in days)",
+    y = "Birth weight (in oz)"
+    ) +
+  scale_color_colorblind()
+```
+
+I chose a scatterplot with a line of best fit to easily visualize the relationship between gestation length and birth weight.
+We can see there is a positive moderately linear relationship between gestation length and birth weight: the longer the gestation time, the heavier the baby will be at birth.
+The mean gestation time is `r Gestation |> filter(gestation != "NA") |> summarize(mean(gestation))` days while the median gestation time is `r Gestation |> filter(gestation != "NA") |> summarize(median(gestation))` days.
+
+There are outliers at around 150, 160, and 205 days (and possibly around 350 days).
+
+### Graph 2
+```{r message=FALSE, warning=FALSE}
+ggplot(
+  data = Gestation,
+  mapping = aes(x = gestation)) + 
+  geom_histogram() + 
+  labs(
+    title = "Gestation length distribution", 
+    subtitle = "Data from 1961 and 1962",
+    x = "Gestation length (in days)",
+    y = "Count"
+    )
+```
+
+This histogram helps me double check the position of the aforementioned outliers (150, 160, 205, 350 days). It also informs me that the data is symmetrical (hence the almost equal median and mean) and unimodal at around 280 days (9.3 months). 
+
+
+# II. Relating smoking and the pregnancy
+## a. Relationship between smoking and gestation time
+### Graph 3
+```{r echo=TRUE, fig.width=10, message=FALSE, warning=FALSE}
+Gestation |> 
+  filter(smoke != "NA") |> 
+  ggplot(
+    aes(x = smoke,
+        y = gestation,
+        fill = smoke)
+    ) +
+  geom_boxplot() +
+  labs(x = "Smoking frequency",
+       y ="Gestation length (in days)",
+       title = "Gestation length and whether the mother smoked",
+       subtitle = "Data from 1961 and 1962"
+  )
+```
+
+One of the best ways to compare the gestation lengths of the different smoker and non-smoker groups is with boxplots.
+Looking at graph 3, all groups have similar IQR and about the same median at around 280 and are symmetrical with both low and high outliers, but two groups stand out:
+
+- Women who smoke now have a slightly lower median, first and third quartiles than all groups, meaning they have a slightly lower gestation time on average;
+
+- Women who have never smoked can have pregnancies that are much longer than usual with the longest lasting over 350 days (women who have smoked once but not anymore also share this outlying value), but they interestingly also have the highest amount of unusually short pregnancies resulting in live birth, with the shortest being 150 days (5 months).
+
+It would seem that never or not smoking could be associated to longer pregnancies but currently smoking is not necessarily associated with the unusually shortest pregnancies.
+
+## b. Relationship between smoking, gestation time and birth weight
+### Graph 4
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+Gestation |> 
+  filter(smoke != "NA") |>
+  ggplot(mapping = aes(
+    x = gestation,
+    y = wt,
+    color = smoke,
+    shape = smoke)
+    ) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Birth weight vs Gestation length", 
+    subtitle = "Data from 1961 and 1962",
+    x = "Gestation length (in days)",
+    y = "Birth weight (in oz)"
+    ) +
+  scale_color_colorblind()
+```
+
+Considering the smoking habits into the relationship between gestation length and birth weight, we see that the relationship is still positive and moderately linear for all groups, however, women who smoke now have the lowest regression line and generally were the ones to give birth to the lightest babies.
+Women who are current smokers generally had babies with the lowest weights. We need boxplots to visually compare the summary statistics for the different groups.
+
+### Graph 5
+```{r message=FALSE, warning=FALSE}
+Gestation |> 
+  filter(smoke != "NA") |> 
+  ggplot(
+    aes(x = smoke,
+        y = wt,
+        fill = smoke)
+    ) +
+  geom_boxplot() +
+  labs(x = "Smoking frequency",
+       y ="Birth weight (in oz)",
+       title = "Birth weight and whether the mother smoked",
+       subtitle = "Data from 1961 and 1962"
+  )
+```
+
+Women who have never smoked are again the group with the most outliers, the lowest outliers and the highest outliers....
+Most groups had babies with a median birth weight of around 125 oz, but women who are current smokers have babies with the lowest median birth weight at around 113 oz, and they also have the second to last lowest outlier.
+Interestingly, women who used to smoke, whether once or until their current pregnancy have a similar distribution, though women who smoked until their current pregnancy have a lower median, IQR and third quartile. 
+  
+# Conclusion
+Women who were current smokers generally had pregnancies that were just very slightly shorter than women who had never smoked, but because the latter had the highest number of unusually shorter pregnancies which pushes me to conclude that smoking might not be too related to the gestation length.
+
+Mothers who had never smoked or once did but not anymore generally gave birth to babies with higher weights while smoking mothers generally gave birth to babies with lower weights so it would seem that smoking could be associated with lower birth weight!
+
+But, we all know the saying: correlation does not mean causation!
+Women who have never smoked had the most outliers on both the lower and high end, meaning that not smoking does not necessarily yield a predictable pregnancy length or birth weight.
+
+There are likely many lurking variables such as lifestyle, diet, medical history (to keep it short) that can affect birth weight or gestation time!
+
+Thank you for reading!
