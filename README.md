@@ -7,7 +7,6 @@ Information about the baby’s parents — age, education, height, weight, and w
 - The birth weight in ounces;
 - Whether the mother smoked or not.
 
-Links:
-
+Links:\
 [Read the blog post](https://maevassi.github.io/mini-project1/maeva_assi_cigarettes_and_contractions.html) \
 [Download the .Rmd file](https://maevassi.github.io/mini-project1/maeva_assi_cigarettes_and_contractions.Rmd)
